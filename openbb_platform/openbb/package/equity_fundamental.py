@@ -3684,9 +3684,17 @@ class ROUTER_equity_fundamental(Container):
     @validate
     def transcript(
         self,
-        symbol: Annotated[str, OpenBBField(description="Symbol to get data for.")],
+        symbol: Annotated[
+            Union[str, List[str]],
+            OpenBBField(
+                description="Symbol to get data for. Multiple comma separated items allowed for provider(s): fmp."
+            ),
+        ],
         year: Annotated[
-            int, OpenBBField(description="Year of the earnings call transcript.")
+            Union[int, str, List[Union[int, str]]],
+            OpenBBField(
+                description="Year of the earnings call transcript. Multiple comma separated items allowed for provider(s): fmp."
+            ),
         ],
         provider: Annotated[
             Optional[Literal["fmp"]],
@@ -3700,10 +3708,10 @@ class ROUTER_equity_fundamental(Container):
 
         Parameters
         ----------
-        symbol : str
-            Symbol to get data for.
-        year : int
-            Year of the earnings call transcript.
+        symbol : Union[str, List[str]]
+            Symbol to get data for. Multiple comma separated items allowed for provider(s): fmp.
+        year : Union[int, str, List[Union[int, str]]]
+            Year of the earnings call transcript. Multiple comma separated items allowed for provider(s): fmp.
         provider : Optional[Literal['fmp']]
             The provider to use, by default None. If None, the priority list configured in the settings is used. Default priority: fmp.
 
@@ -3737,7 +3745,7 @@ class ROUTER_equity_fundamental(Container):
         Examples
         --------
         >>> from openbb import obb
-        >>> obb.equity.fundamental.transcript(symbol='AAPL', year=2020, provider='fmp')
+        >>> obb.equity.fundamental.transcript(symbol='AAPL', year='2020', provider='fmp')
         """  # noqa: E501
 
         return self._run(
@@ -3755,5 +3763,9 @@ class ROUTER_equity_fundamental(Container):
                     "year": year,
                 },
                 extra_params=kwargs,
+                info={
+                    "symbol": {"fmp": {"multiple_items_allowed": True}},
+                    "year": {"fmp": {"multiple_items_allowed": True}},
+                },
             )
         )
